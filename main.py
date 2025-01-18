@@ -22,7 +22,7 @@ def handle_points_labels(points, labels, path):
 
 
 def main():
-    USE_WEBCAM = False
+    USE_WEBCAM = True
     player1_color = (88, 168, 55)
     player2_color = (213, 84, 89)
 
@@ -94,7 +94,7 @@ def main():
         ret, frame = webcam.read()
         warped_image = crop_view(frame, top_left, top_right, bottom_right, bottom_left)
         matrix, overlay = process_each_cell("Images/rectified_image.jpg", 7, 6, force_image=warped_image)
-
+        print(matrix)
         #cv2.imwrite("rectified_image.jpg", warped_image)
         cv2.imshow("Rectified Image", overlay)
         print("Frame captured")

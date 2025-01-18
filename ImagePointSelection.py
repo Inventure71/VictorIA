@@ -50,7 +50,7 @@ class ImageClick:
             self.capture_button = tk.Button(self.button_frame, text="Capture Image", command=self.capture_image)
             self.capture_button.pack(side=tk.LEFT, padx=5)
 
-        self.end_button = tk.Button(self.button_frame, text="End Script", command=self.end_script)
+        self.end_button = tk.Button(self.button_frame, text="End Calibration", command=self.end_script)
         self.end_button.pack(side=tk.LEFT, padx=5)
 
     def setup_webcam(self):
