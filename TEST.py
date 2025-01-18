@@ -5,4 +5,6 @@ from utils.useTeachableMachine import CircleRecognition
 #divide_picture_into_cells("Images/rectified_image.jpg", 7, 6)
 
 
-matrix = process_each_cell("Images/rectified_image.jpg", 7, 6)
+matrix, image = process_each_cell("Images/rectified_image.jpg", 7, 6)
+for row in matrix:
+    print(row)

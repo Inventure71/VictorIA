@@ -38,11 +38,11 @@ class BorderDetector:
         x = np.array(list(leftmost_points.values()))
 
         # Calculate the 30% trimmed mean
-        trimmed_mean_x = trim_mean(x, proportiontocut=0.4)
+        trimmed_mean_x = trim_mean(x, proportiontocut=0.35)
 
         # Calculate the thresholds for trimming
-        lower_bound = np.percentile(x, 40)  # 30% trimmed: 15% from each side
-        upper_bound = np.percentile(x, 60)
+        lower_bound = np.percentile(x, 35)  # 30% trimmed: 15% from each side
+        upper_bound = np.percentile(x, 65)
 
         # Identify points within and outside the trimmed range
         trimmed_indices = (x >= lower_bound) & (x <= upper_bound)
@@ -87,11 +87,11 @@ class BorderDetector:
         y = np.array(list(lowest_points.values()))
 
         # Calculate the 30% trimmed mean
-        trimmed_mean_y = trim_mean(y, proportiontocut=0.4)
+        trimmed_mean_y = trim_mean(y, proportiontocut=0.35)
 
         # Calculate the thresholds for trimming
-        lower_bound = np.percentile(y, 40)  # 30% trimmed: 15% from each side
-        upper_bound = np.percentile(y, 60)
+        lower_bound = np.percentile(y, 35)  # 30% trimmed: 15% from each side
+        upper_bound = np.percentile(y, 65)
 
         # Identify points within and outside the trimmed range
         trimmed_indices = (y >= lower_bound) & (y <= upper_bound)
@@ -140,11 +140,11 @@ class BorderDetector:
         y = np.array(list(highest_points.values()))
 
         # Calculate the 30% trimmed mean
-        trimmed_mean_y = trim_mean(y, proportiontocut=0.4)  # 0.3
+        trimmed_mean_y = trim_mean(y, proportiontocut=0.35)  # 0.3
 
         # Calculate the thresholds for trimming
-        lower_bound = np.percentile(y, 40)
-        upper_bound = np.percentile(y, 60)
+        lower_bound = np.percentile(y, 35)
+        upper_bound = np.percentile(y, 65)
 
         # Identify points within and outside the trimmed range
         trimmed_indices = (y >= lower_bound) & (y <= upper_bound)
@@ -193,11 +193,11 @@ class BorderDetector:
         x = np.array(list(rightmost_points.values()))
 
         # Calculate the 30% trimmed mean
-        trimmed_mean_x = trim_mean(x, proportiontocut=0.4)
+        trimmed_mean_x = trim_mean(x, proportiontocut=0.35)
 
         # Calculate the thresholds for trimming
-        lower_bound = np.percentile(x, 40)  # 15
-        upper_bound = np.percentile(x, 60)  # 85
+        lower_bound = np.percentile(x, 35)  # 15
+        upper_bound = np.percentile(x, 65)  # 85
 
         # Identify points within and outside the trimmed range
         trimmed_indices = (x >= lower_bound) & (x <= upper_bound)

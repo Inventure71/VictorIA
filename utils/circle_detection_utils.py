@@ -1,8 +1,8 @@
 import time
 import cv2
 import numpy as np
-from utils.useTeachableMachine import CircleRecognition
 
+from utils.useTeachableMachine import CircleRecognition
 
 
 def detect_circles_simple(img):
@@ -67,8 +67,10 @@ def divide_picture_into_cells(image_path=None, columns=7, rows=6):
             cell_filename = f'cells/cell_{row}_{col}.jpg'
             cv2.imwrite(cell_filename, cell)
 
-def process_each_cell(image_path=None, columns=7, rows=6, color_player1=(88, 168, 55), color_player2=(213, 84, 89)):
-    if image_path is None:
+def process_each_cell(image_path=None, columns=7, rows=6, force_image=None, color_player1=(88, 168, 55), color_player2=(213, 84, 89)):
+    if force_image is not None:
+        image = force_image
+    elif image_path is None:
         cap = cv2.VideoCapture(0)
         ret, frame = cap.read()
         image = frame
@@ -77,6 +79,8 @@ def process_each_cell(image_path=None, columns=7, rows=6, color_player1=(88, 168
         image = cv2.imread(image_path)
         if image is None:
             raise ValueError("Image not found or invalid path.")
+
+    matrix_board = []
 
     image_w_overlay = image.copy()
 
@@ -87,6 +91,7 @@ def process_each_cell(image_path=None, columns=7, rows=6, color_player1=(88, 168
     cell_height = height // rows
 
     for row in range(rows):
+        matrix_board_row = []
         for col in range(columns):
             x_start = col * cell_width
             x_end = (col + 1) * cell_width
@@ -115,11 +120,24 @@ def process_each_cell(image_path=None, columns=7, rows=6, color_player1=(88, 168
                             cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 0, 0), 1)
 
             class_name, confidence_score = cd.predict(cell)
-            cv2.putText(image_w_overlay, f"{class_name[2:]} {int(confidence_score * 100)}%",
+            class_name = class_name[1:].strip()
+            if class_name == "None":
+                matrix_board_row.append(0)
+            elif class_name == "Red":
+                matrix_board_row.append(1)
+            elif class_name == "Green":
+                matrix_board_row.append(2)
+            else:
+                print("Error in class name", class_name)
+
+            cv2.putText(image_w_overlay, f"{class_name} {int(confidence_score * 100)}%",
                         (x_start + 5, y_start + 15),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
+
+        matrix_board.append(matrix_board_row)
 
 
     pic_name = f'Processed_Cells/processed_block.jpg'
     cv2.imwrite(pic_name, image_w_overlay)
     print(f"Finished processing all cells. Saved to {pic_name}.")
+    return matrix_board, image_w_overlay

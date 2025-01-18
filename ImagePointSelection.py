@@ -134,8 +134,8 @@ class ImageClick:
         self.canvas.delete("all")
 
         # Figure out the maximum display size
-        max_width = self.root.winfo_screenwidth() - 100
-        max_height = self.root.winfo_screenheight() - 200
+        max_width = self.root.winfo_screenwidth() - 150
+        max_height = self.root.winfo_screenheight() - 250
 
         # Determine new size to maintain aspect ratio if needed
         aspect_ratio = self.orig_width / self.orig_height

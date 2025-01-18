@@ -11,6 +11,7 @@ from utils.calibration_utils import show_mask, show_points
 from utils.calculate_intersection import calculate_intersection
 from utils.border_detection import BorderDetector
 from utils.camera_calibration import crop_view
+from utils.circle_detection_utils import divide_picture_into_cells, process_each_cell
 
 
 def handle_points_labels(points, labels, path):
@@ -92,8 +93,10 @@ def main():
         webcam = cv2.VideoCapture(0)
         ret, frame = webcam.read()
         warped_image = crop_view(frame, top_left, top_right, bottom_right, bottom_left)
-        cv2.imwrite("rectified_image.jpg", warped_image)
-        cv2.imshow("Rectified Image", warped_image)
+        matrix, overlay = process_each_cell("Images/rectified_image.jpg", 7, 6, force_image=warped_image)
+
+        #cv2.imwrite("rectified_image.jpg", warped_image)
+        cv2.imshow("Rectified Image", overlay)
         print("Frame captured")
         # Check for the 'q' key press to exit the loop
         if cv2.waitKey(1) & 0xFF == ord('q'):
