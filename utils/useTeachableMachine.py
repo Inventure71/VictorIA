@@ -11,10 +11,15 @@ import numpy as np
 from teachable_machine import TeachableMachine
 # remember tensorflow 2.12 needed
 
+
+
 class CircleRecognition:
     def __init__(self):
         self.camera = cv2.VideoCapture(0)
         base_path = os.path.dirname(os.path.abspath(__file__))
+        # Suppress TensorFlow debugging logs
+        tensorflow.keras.utils.disable_interactive_logging()
+
         #self.model = load_model(os.path.join(base_path, "../Models/teachable/keras_model.h5"), compile=False)
         self.model = tensorflow.keras.models.load_model(os.path.join(base_path, '../Models/teachable/keras_model.h5'))
         #self.model = TeachableMachine(model_path=os.path.join(base_path, "../Models/teachable/keras_model.h5"),
@@ -36,14 +41,14 @@ class CircleRecognition:
 
 
         # Predicts the model
-        prediction = self.model.predict(image)
+        prediction = self.model.predict(image, verbose=0)
         index = np.argmax(prediction)
         class_name = self.class_names[index]
         confidence_score = prediction[0][index]
 
         # Print prediction and confidence score
-        print("Class:", class_name[2:], end="")
-        print("Confidence Score:", str(np.round(confidence_score * 100))[:-2], "%")
+        #print("Class:", class_name[2:], end="")
+        #print("Confidence Score:", str(np.round(confidence_score * 100))[:-2], "%")
 
         """
         result = self.model.classify_image("rectified_image.jpg")

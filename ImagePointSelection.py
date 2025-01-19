@@ -7,11 +7,12 @@ import cv2  # OpenCV for webcam functionality
 
 
 class ImageClick:
-    def __init__(self, root, callback, USE_WEBCAM=False):
+    def __init__(self, root, callback, image_path, USE_WEBCAM=False):
         self.root = root
         self.callback = callback
         self.USE_WEBCAM = USE_WEBCAM
-        self.root.title("Image Click App")
+        self.filepath = image_path
+        self.root.title("Connect 4")
 
         # Create a main frame to hold canvas and buttons
         self.main_frame = tk.Frame(self.root)
@@ -113,11 +114,6 @@ class ImageClick:
 
     def load_image(self):
         """Load an image from a file (or a fixed path)."""
-        # Optionally, you can allow the user to choose a file:
-        # self.filepath = filedialog.askopenfilename(title="Select Image",
-        #                                           filetypes=[("Image Files", "*.png;*.jpg;*.jpeg;*.bmp")])
-        # For now, using a fixed filepath
-        self.filepath = "Images/connect4_6.jpeg"  #"connect4.jpeg"
         try:
             self.original_image = Image.open(self.filepath)
         except FileNotFoundError:
