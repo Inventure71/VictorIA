@@ -185,6 +185,35 @@ def evaluate_model(model, num_episodes=100, render=False):
     print(f"Evaluation Results: {evaluation_metrics}")
     return win_rate, evaluation_metrics
 
+def predict_move(model, matrix):
+    """
+    Predicts the next move for the given Connect 4 board matrix using the trained model.
+
+    Parameters:
+        model (tf.keras.Model): The trained DQN model.
+        matrix (numpy.ndarray): The current state of the Connect 4 board (6x7 matrix).
+
+    Returns:
+        int: The column index (0-6) for the predicted move.
+    """
+    # Ensure the matrix is properly shaped
+    if matrix.shape != (6, 7):
+        raise ValueError("Input matrix must have the shape (6, 7).")
+
+    # Add batch dimension to match model input
+    input_matrix = np.expand_dims(matrix, axis=0)
+
+    # Get predictions from the model
+    predictions = model.predict(input_matrix)
+
+    # Apply softmax to get probabilities
+    action_probabilities = tf.nn.softmax(predictions[0]).numpy()
+
+    # Choose the action with the highest probability
+    predicted_action = np.argmax(action_probabilities)
+
+    return predicted_action
+
 
 # Train the model
 if __name__ == "__main__":

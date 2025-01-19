@@ -1,14 +1,4 @@
-import time
-from multiprocessing import Pool
-from concurrent.futures import ThreadPoolExecutor
-import numpy as np
-import cv2
-
 from utils.connect4_utils import find_possible_position_of_next_move
-from utils.useTeachableMachine import CircleRecognition
-import cv2
-import numpy as np
-
 from utils.useTeachableMachine import CircleRecognition
 from concurrent.futures import ThreadPoolExecutor
 import numpy as np
@@ -22,7 +12,7 @@ Possible issues:
 
 """
 
-cv = CircleRecognition()
+DEBUG = False
 
 def detect_circles_simple(img):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -49,7 +39,6 @@ def calculate_average_color(cell, x, y, r):
     return tuple(map(int, mean_color[:3]))  # Return as (B, G, R)
 
 def process_each_cell_single_core(image_path=None, columns=7, rows=6, circle_detector=None, force_image=None, old_matrix=None, color_player1=(88, 168, 55), color_player2=(213, 84, 89)):
-    DEBUG = True
     margin_of_similarity = 0.0  # Adjust as needed for sensitivity
 
     # Initialize the old matrix if not provided
@@ -196,11 +185,12 @@ def process_cell(args):
             return result
 
     # Detect Circle
-    x, y, r = detect_circles_simple(cell)
-    if x is not None and y is not None and r is not None:
-        avg_color = calculate_average_color(cell, x, y, r)
-        result["circle"] = (x + x_start, y + y_start, r)
-        result["avg_color"] = avg_color
+    if DEBUG:
+        x, y, r = detect_circles_simple(cell)
+        if x is not None and y is not None and r is not None:
+            avg_color = calculate_average_color(cell, x, y, r)
+            result["circle"] = (x + x_start, y + y_start, r)
+            result["avg_color"] = avg_color
 
     # Predict Class
     class_name, confidence_score = circle_detector.predict(cell)
@@ -210,7 +200,6 @@ def process_cell(args):
     return result
 
 def process_each_cell_multithreaded(image_path=None, columns=7, rows=6, num_threads=6, circle_detector=None, force_image=None, old_matrix=None, color_player1=(88, 168, 55), color_player2=(213, 84, 89)):
-    DEBUG = True
     margin_of_similarity = 0.0
 
     old_matrix = old_matrix if old_matrix is not None else np.zeros((rows, columns), dtype=int)
@@ -240,7 +229,7 @@ def process_each_cell_multithreaded(image_path=None, columns=7, rows=6, num_thre
     except Exception:
         old_state_of_board = None
     cv2.imwrite(full_image_filename, image)
-    print(f"Full board image saved as {full_image_filename}")
+    #print(f"Full board image saved as {full_image_filename}")
 
     # Find the possible positions of the next moves
     possible_moves = find_possible_position_of_next_move(old_matrix)
@@ -295,6 +284,6 @@ def process_each_cell_multithreaded(image_path=None, columns=7, rows=6, num_thre
     # Save final image
     pic_name = f'Processed_Cells/processed_block.jpg'
     cv2.imwrite(pic_name, image_w_overlay)
-    print(f"Finished processing all cells. Saved to {pic_name}.")
+    #print(f"Finished processing all cells. Saved to {pic_name}.")
 
     return matrix_board, image_w_overlay

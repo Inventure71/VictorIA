@@ -1,3 +1,7 @@
+import os
+import random
+import sys
+import threading
 import time
 
 import cv2
@@ -8,6 +12,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from ImagePointSelection import ImageClick
+from connect4 import predict_move
 from utils.sam_model_handler import SamModelHandler
 from utils.calibration_utils import show_mask, show_points
 from utils.calculate_intersection import calculate_intersection
@@ -16,7 +21,7 @@ from utils.camera_calibration import crop_view
 from utils.detection_utils_v2 import process_each_cell_single_core, process_each_cell_multithreaded
 from utils.cv2_utils import display_mask_image, display_mask_image_with_intersections
 from utils.useTeachableMachine import CircleRecognition
-
+import tensorflow as tf
 
 def handle_points_labels(points, labels, path):
     global input_point, input_label, image_path
@@ -33,6 +38,11 @@ def main():
     USE_WEBCAM = True
     DEBUG = False
     MULTY_TREAD = True
+    robot = 1 # 1 for player 1, 2 for player 2
+
+    # Suppress TensorFlow debugging logs
+    tf.keras.utils.disable_interactive_logging()
+
     image_path = "Images/connect4_6.jpeg"
     player1_color = (88, 168, 55)
     player2_color = (213, 84, 89)
@@ -131,29 +141,55 @@ def main():
 
     fps_start_time = time.time()
     frame_count = 0
-    matrix = None
+    matrix = np.zeros((6, 7), dtype=int)
+    last_matrix = np.zeros((6, 7), dtype=int)
+
+    player_that_needs_to_play = 1
+
+    move = random.randint(0, 6) # add model to play
+    print("Predicted move:", move)
 
     while True:
         ret, frame = webcam.read()
         warped_image = crop_view(frame, top_left, top_right, bottom_right, bottom_left)
         if MULTY_TREAD:
-            matrix, overlay = process_each_cell_multithreaded("Images/rectified_image.jpg", 7, 6,circle_detector=cd, old_matrix=matrix, force_image=warped_image)
+            matrix, overlay = process_each_cell_multithreaded("Images/rectified_image.jpg", 7, 6, circle_detector=cd,
+                                                              old_matrix=matrix, force_image=warped_image)
         else:
-            matrix, overlay = process_each_cell_single_core("Images/rectified_image.jpg", 7, 6, circle_detector=cd, old_matrix=matrix,
+            matrix, overlay = process_each_cell_single_core("Images/rectified_image.jpg", 7, 6, circle_detector=cd,
+                                                            old_matrix=matrix,
                                                             force_image=warped_image)
-        print(matrix)
-        # cv2.imwrite("rectified_image.jpg", warped_image)
+
+        new_matrix = matrix - last_matrix
+
+        if new_matrix.max() == 1:
+            player_that_needs_to_play = 2
+            status_message = "Player 1 has played"
+        elif new_matrix.max() == 2:
+            player_that_needs_to_play = 1
+            move = random.randint(0, 6)  # add model to play
+            status_message = f"Player 2 has played | Predicted move: {move}"
+        else:
+            if player_that_needs_to_play == 1:
+                status_message = f"Move of player 1: {move}, waiting for it to be played"
+            elif player_that_needs_to_play == 2:
+                status_message = f"Waiting for player 2 to play"
+
+        last_matrix = matrix
+
+        # Display matrix and overlay
         cv2.imshow("Rectified Image", overlay)
-        print("Frame captured")
 
         frame_count += 1
         fps_end_time = time.time()
         time_diff = fps_end_time - fps_start_time
         if time_diff >= 1:
             fps = frame_count / time_diff
-            print(f"FPS: {fps:.2f}")
             fps_start_time = time.time()
             frame_count = 0
+
+        # Replace this section in your loop
+        print(f"\rFPS: {fps:.2f} | Matrix:\n{matrix} | Status: {status_message}", end='', flush=True)
 
         # Check for the 'q' key press to exit the loop
         if cv2.waitKey(1) & 0xFF == ord('q'):

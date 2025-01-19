@@ -1,8 +1,5 @@
 
 
-
-
-
 def find_possible_position_of_next_move(matrix):
     # array with height of each possible move for each column
     # ES:
@@ -19,6 +16,6 @@ def find_possible_position_of_next_move(matrix):
                 if matrix[row_index][col_index] == 0:
                     columns_height[col_index] = row_index
 
-    print(columns_height)
+    #print(columns_height)
 
     return columns_height
