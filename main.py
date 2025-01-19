@@ -14,7 +14,7 @@ from utils.calculate_intersection import calculate_intersection
 from utils.border_detection import BorderDetector
 from utils.camera_calibration import crop_view
 from utils.detection_utils_v2 import process_each_cell_single_core, process_each_cell_multithreaded
-from utils.cv2_utils import display_mask_image
+from utils.cv2_utils import display_mask_image, display_mask_image_with_intersections
 from utils.useTeachableMachine import CircleRecognition
 
 
@@ -79,28 +79,38 @@ def main():
                 plt.show()
 
         best_mask = masks[np.argmax(scores)]
-        if display_mask_image(image_rgb, best_mask): # here it displays the mask
+
+        # Border detection
+        # POSSIBLE TO CONVERT ALL OF THIS IN ONE FUNCTION
+        detector = BorderDetector(best_mask)
+        left_m, left_b = detector.find_left_border()
+        top_m, top_b = detector.find_top_border()
+        right_m, right_b = detector.find_right_border()
+        bottom_m, bottom_b = detector.find_bottom_border()
+
+        # Calculate intersections
+        try:
+            top_left = calculate_intersection(left_m, left_b, top_m, top_b)
+            top_right = calculate_intersection(right_m, right_b, top_m, top_b)
+            bottom_left = calculate_intersection(left_m, left_b, bottom_m, bottom_b)
+            bottom_right = calculate_intersection(right_m, right_b, bottom_m, bottom_b)
+            intersections = {
+                "top_left": top_left,
+                "top_right": top_right,
+                "bottom_left": bottom_left,
+                "bottom_right": bottom_right
+            }
+
+        except ValueError as e:
+            print(e)
+            return
+
+        if display_mask_image_with_intersections(image, best_mask, intersections):
             break
         else:
             USE_WEBCAM = False
 
-    # Border detection
-    # POSSIBLE TO CONVERT ALL OF THIS IN ONE FUNCTION
-    detector = BorderDetector(best_mask)
-    left_m, left_b = detector.find_left_border()
-    top_m, top_b = detector.find_top_border()
-    right_m, right_b = detector.find_right_border()
-    bottom_m, bottom_b = detector.find_bottom_border()
 
-    # Calculate intersections
-    try:
-        top_left = calculate_intersection(left_m, left_b, top_m, top_b)
-        top_right = calculate_intersection(right_m, right_b, top_m, top_b)
-        bottom_left = calculate_intersection(left_m, left_b, bottom_m, bottom_b)
-        bottom_right = calculate_intersection(right_m, right_b, bottom_m, bottom_b)
-    except ValueError as e:
-        print(e)
-        return
 
     if DEBUG:
         # Visualization
