@@ -1,3 +1,5 @@
+import time
+
 import cv2
 import tkinter as tk
 from tkinter import filedialog
@@ -12,54 +14,67 @@ from utils.calculate_intersection import calculate_intersection
 from utils.border_detection import BorderDetector
 from utils.camera_calibration import crop_view
 from utils.circle_detection_utils import divide_picture_into_cells, process_each_cell
-
+from utils.cv2_utils import display_mask_image
 
 def handle_points_labels(points, labels, path):
     global input_point, input_label, image_path
     input_point = points
     input_label = labels
     image_path = path
+    print("Image path set to: ", image_path)
 
 
 def main():
+    global  input_point, input_label, image_path
     USE_WEBCAM = True
+    image_path = "Images/connect4_6.jpeg"
+
     player1_color = (88, 168, 55)
     player2_color = (213, 84, 89)
 
-    # Initialize tkinter for image selection
-    root = tk.Tk()
-    app = ImageClick(root, handle_points_labels, USE_WEBCAM)
-    root.mainloop()
-    if not image_path:
-        print("No image selected. Exiting.")
-        return
-
-    image = cv2.imread(image_path)
-    image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-
-    # draw these points on the image
-    plt.figure(figsize=(10, 10))
-    plt.imshow(image_rgb)
-    show_points(input_point, input_label, plt.gca())
-    plt.show()
-
+    # Load this at the start so it doesn't have to be loaded multiple times
     # Handle SAM model
     sam_handler = SamModelHandler("Models/SAM Model Checkpoint.pth")
-    sam_handler.set_image(image)
 
-    # Predict masks
-    masks, scores, _ = sam_handler.predict(input_point, input_label)
-    for mask in masks:
-        # draw the mask on graph
+    while True:
+        # Initialize tkinter for image selection
+        root = tk.Tk()
+        print("Starting with default image path: ", image_path)
+        app = ImageClick(root, handle_points_labels, image_path, USE_WEBCAM=USE_WEBCAM)
+        root.mainloop()
+        print("Image path:", image_path)
+        if not image_path:
+            print("No image selected. Exiting.")
+            return
+
+        # open image
+        image = cv2.imread(image_path)
+        image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+        # Set the image for the SAM model
+        sam_handler.set_image(image)
+
+        # draw these points on the image
         plt.figure(figsize=(10, 10))
         plt.imshow(image_rgb)
-        show_mask(mask, plt.gca())
-        plt.legend()
+        show_points(input_point, input_label, plt.gca())
         plt.show()
 
+        # Predict masks
+        masks, scores, _ = sam_handler.predict(input_point, input_label)
+        for mask in masks:
+            # draw the mask on graph
+            plt.figure(figsize=(10, 10))
+            plt.imshow(image_rgb)
+            show_mask(mask, plt.gca())
+            plt.legend()
+            plt.show()
 
-
-    best_mask = masks[np.argmax(scores)]
+        best_mask = masks[np.argmax(scores)]
+        if display_mask_image(image_rgb, best_mask): # here it displays the mask
+            break
+        else:
+            USE_WEBCAM = False
 
     # Border detection
     detector = BorderDetector(best_mask)
