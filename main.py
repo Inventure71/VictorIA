@@ -13,7 +13,7 @@ from utils.calibration_utils import show_mask, show_points
 from utils.calculate_intersection import calculate_intersection
 from utils.border_detection import BorderDetector
 from utils.camera_calibration import crop_view
-from utils.circle_detection_utils import process_each_cell_single_core, process_each_cell_modular
+from utils.detection_utils_v2 import process_each_cell_single_core, process_each_cell_multithreaded
 from utils.cv2_utils import display_mask_image
 from utils.useTeachableMachine import CircleRecognition
 
@@ -32,7 +32,7 @@ def main():
     """DEFAULT VARIABLES"""
     USE_WEBCAM = True
     DEBUG = False
-    MULTY_TREAD = False
+    MULTY_TREAD = True
     image_path = "Images/connect4_6.jpeg"
     player1_color = (88, 168, 55)
     player2_color = (213, 84, 89)
@@ -127,7 +127,7 @@ def main():
         ret, frame = webcam.read()
         warped_image = crop_view(frame, top_left, top_right, bottom_right, bottom_left)
         if MULTY_TREAD:
-            matrix, overlay = process_each_cell_modular("Images/rectified_image.jpg", 7, 6, force_image=warped_image)
+            matrix, overlay = process_each_cell_multithreaded("Images/rectified_image.jpg", 7, 6,circle_detector=cd, old_matrix=matrix, force_image=warped_image)
         else:
             matrix, overlay = process_each_cell_single_core("Images/rectified_image.jpg", 7, 6, circle_detector=cd, old_matrix=matrix,
                                                             force_image=warped_image)
