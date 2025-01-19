@@ -127,9 +127,79 @@ def train_dqn(episodes=10000):
                 break
 
     print(f"Training complete. Total wins: {wins}")
+    model.save("connect4_model_v1_2.h5")
+    model.save_weights("connect4_model_v1_2_weights.h5")
     return model
+
+def evaluate_model(model, num_episodes=100, render=False):
+    """
+    Evaluates the trained model by running it in the environment for a specified number of episodes.
+
+    Parameters:
+        model (tf.keras.Model): The trained DQN model.
+        num_episodes (int): Number of episodes to evaluate the model.
+        render (bool): Whether to render the environment during evaluation.
+
+    Returns:
+        float: Win rate (percentage of games won).
+        dict: Detailed evaluation metrics (wins, losses, draws).
+    """
+    env = make("connectx", debug=True)
+    wins, losses, draws = 0, 0, 0
+
+    for episode in range(num_episodes):
+        trainer = env.train([None, 'random'])  # Model vs. random opponent
+        obs = np.array(trainer.reset()['board']).reshape(num_states)
+        done = False
+
+        while not done:
+            # Get the action from the model
+            action, _ = get_action(model, obs, epsilon_value=0.0)  # epsilon=0 for pure exploitation
+            action = check_valid(obs, action)
+
+            # Perform the action in the environment
+            next_obs, winner, done, _ = trainer.step(action)
+            obs = np.array(next_obs['board']).reshape(num_states)
+
+            if render:
+                env.render(mode="ansi")  # Text-based rendering for debugging
+
+        # Track outcomes
+        if winner == 1:  # Model wins
+            wins += 1
+        elif winner == -1:  # Opponent wins
+            losses += 1
+        else:  # Draw
+            draws += 1
+
+    # Compute metrics
+    total_games = wins + losses + draws
+    win_rate = (wins / total_games) * 100
+    evaluation_metrics = {
+        "wins": wins,
+        "losses": losses,
+        "draws": draws,
+        "win_rate": win_rate
+    }
+
+    print(f"Evaluation Results: {evaluation_metrics}")
+    return win_rate, evaluation_metrics
+
 
 # Train the model
 if __name__ == "__main__":
+    """
     trained_model = train_dqn()
-    trained_model.save("connect4_model_v1.h5")
+    try:
+        trained_model.save("connect4_model_v1.h5")
+    except Exception as e:
+        print(f"Failed to save the model: {e}")"""
+
+    trained_model = tf.keras.models.load_model("connect4_model_v1.h5")
+
+    win_rate, metrics = evaluate_model(trained_model, num_episodes=100)
+    print(f"Model Win Rate: {win_rate:.2f}%")
+
+
+
+
