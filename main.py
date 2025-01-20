@@ -12,7 +12,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from ImagePointSelection import ImageClick
-from connect4 import predict_move
+from connect4 import predict
 from utils.sam_model_handler import SamModelHandler
 from utils.calibration_utils import show_mask, show_points
 from utils.calculate_intersection import calculate_intersection
@@ -139,6 +139,7 @@ def main():
 
     import time
 
+    fps = 0
     fps_start_time = time.time()
     frame_count = 0
     matrix = np.zeros((6, 7), dtype=int)
@@ -146,10 +147,18 @@ def main():
 
     player_that_needs_to_play = 1
 
-    move = random.randint(0, 6) # add model to play
+    move, score = predict(matrix)
     print("Predicted move:", move)
 
     while True:
+        frame_count += 1
+        fps_end_time = time.time()
+        time_diff = fps_end_time - fps_start_time
+        if time_diff >= 1:
+            fps = frame_count / time_diff
+            fps_start_time = time.time()
+            frame_count = 0
+
         ret, frame = webcam.read()
         warped_image = crop_view(frame, top_left, top_right, bottom_right, bottom_left)
         if MULTY_TREAD:
@@ -165,31 +174,39 @@ def main():
         if new_matrix.max() == 1:
             player_that_needs_to_play = 2
             status_message = "Player 1 has played"
+            # Replace this section in your loop
+            print(f"\rFPS: {fps:.2f} | Matrix:\n{matrix} | Status: {status_message}", end='', flush=True)
+
         elif new_matrix.max() == 2:
             player_that_needs_to_play = 1
-            move = random.randint(0, 6)  # add model to play
+            move, best_score = predict(matrix)
             status_message = f"Player 2 has played | Predicted move: {move}"
+            # Replace this section in your loop
+            print(f"\rFPS: {fps:.2f} | Matrix:\n{matrix} | Status: {status_message}", end='', flush=True)
+
         else:
             if player_that_needs_to_play == 1:
                 status_message = f"Move of player 1: {move}, waiting for it to be played"
+                # Highlight the predicted move on the overlay
+                column = move
+                row = np.argmin(matrix[:, column])  # Find the lowest empty row in the column
+                if row < 6:  # Ensure the row is within bounds
+                    # Calculate the center of the cell
+                    cell_height = overlay.shape[0] // 6
+                    cell_width = overlay.shape[1] // 7
+                    center_x = int(column * cell_width + cell_width / 2)
+                    center_y = int(row * cell_height + cell_height / 2)
+
+                    # Draw the circle on the overlay
+                    cv2.circle(overlay, (center_x, center_y), radius=20, color=(0, 255, 0), thickness=2)
             elif player_that_needs_to_play == 2:
                 status_message = f"Waiting for player 2 to play"
 
         last_matrix = matrix
 
         # Display matrix and overlay
+        overlay = cv2.flip(overlay, 1)
         cv2.imshow("Rectified Image", overlay)
-
-        frame_count += 1
-        fps_end_time = time.time()
-        time_diff = fps_end_time - fps_start_time
-        if time_diff >= 1:
-            fps = frame_count / time_diff
-            fps_start_time = time.time()
-            frame_count = 0
-
-        # Replace this section in your loop
-        print(f"\rFPS: {fps:.2f} | Matrix:\n{matrix} | Status: {status_message}", end='', flush=True)
 
         # Check for the 'q' key press to exit the loop
         if cv2.waitKey(1) & 0xFF == ord('q'):
