@@ -15,7 +15,7 @@ class RobotHandling:
 
         self.current_location = (0, 0, 0)
 
-        self.safe_location = (0, 0.2, 0.3)
+        self.safe_location = (-0.2, 0.01, 0.3)
 
         self.vertical_pitch = 1.43
 
@@ -32,7 +32,6 @@ class RobotHandling:
         robot_startup()
 
     def move_arm_cartesian(self, x=None, y=None, z=None, roll=None, pitch=None, yaw=None, speed=1.0):
-        speed = 1
         if x is None:
             x = self.current_location[0]
         elif y is None:
@@ -71,7 +70,7 @@ class RobotHandling:
 
     def move_to_safe_location(self):
         # , pitch=self.vertical_pitch
-        self.move_arm_cartesian(self.safe_location[0], self.safe_location[1], self.safe_location[2], pitch=self.vertical_pitch/4)
+        self.move_arm_cartesian(self.safe_location[0], self.safe_location[1], self.safe_location[2], pitch=self.vertical_pitch/4, speed=1.2)
 
     def pickup_cell(self):
         print("picking up chip")
@@ -100,9 +99,9 @@ class RobotHandling:
         self.pickup_cell()
 
         if column != 0:
-            # If not that one then move there fast
-            self.move_arm_cartesian(self.cell_0_cord[0], self.cell_0_cord[1], self.cell_0_cord[2], pitch=self.vertical_pitch)
-
+            # If not that one then move there fast WITH increased height
+            self.move_arm_cartesian(self.cell_0_cord[0], self.cell_0_cord[1], self.cell_0_cord[2]+0.05, pitch=self.vertical_pitch)
+            time.sleep(1)
 
         # Compute the target X offset based on the column
         # target_x = 0.18 + int(column) * 0.031
@@ -112,7 +111,7 @@ class RobotHandling:
         target_z = self.cell_0_cord[2]
 
         print(f"[Robot] Moving end effector to X={target_x:.3f}, Z={target_z:.3f}.")
-        self.move_arm_cartesian(x=target_x, y=target_y, z=target_z, pitch=self.vertical_pitch, speed=0.5)
+        self.move_arm_cartesian(x=target_x, y=target_y, z=target_z, pitch=self.vertical_pitch, speed=0.3)
 
         # perform a slight Z adjustment if column < 4
         #if int(column) < 4:
@@ -120,9 +119,10 @@ class RobotHandling:
         #    print(f"[Robot] Applying Z offset: {adjustment_z:.4f}")
         #    self.bot.arm.set_ee_cartesian_trajectory(z=adjustment_z)
 
+        time.sleep(0.2)
         # Drop the piece
         self.bot.gripper.release(2.0)
-        time.sleep(0.1)
+        time.sleep(0.2)
 
         # Move arm back up
         self.move_to_safe_location()
