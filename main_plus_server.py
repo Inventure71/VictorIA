@@ -20,6 +20,7 @@ from utils.border_detection import BorderDetector
 from utils.camera_calibration import crop_view
 from utils.detection_utils_v2 import process_each_cell_single_core, process_each_cell_multithreaded
 from utils.cv2_utils import display_mask_image, display_mask_image_with_intersections
+from utils.server_utils import send_move_request
 from utils.useTeachableMachine import CircleRecognition
 import tensorflow as tf
 
@@ -176,14 +177,13 @@ def main():
         if new_matrix.max() == 1:
             player_that_needs_to_play = 2
             status_message = "Player 1 has played"
-            # Replace this section in your loop
             print(f"\rFPS: {fps:.2f} | Matrix:\n{matrix} | Status: {status_message}", end='', flush=True)
 
         elif new_matrix.max() == 2:
             player_that_needs_to_play = 1
             move, best_score = predict(matrix)
+            send_move_request(move)
             status_message = f"Player 2 has played | Predicted move: {move}"
-            # Replace this section in your loop
             print(f"\rFPS: {fps:.2f} | Matrix:\n{matrix} | Status: {status_message}", end='', flush=True)
 
         else:
