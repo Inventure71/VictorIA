@@ -1,10 +1,6 @@
+import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import trim_mean
-import matplotlib.pyplot as plt
-
-import numpy as np
-from scipy.stats import trim_mean
-import matplotlib.pyplot as plt
 
 
 class BorderDetector:

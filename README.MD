@@ -1,8 +1,8 @@
-# Things to remember
+# Guide + Things to remember
 **FIRST** 
 - try: Install the requirements.txt file using the following command:<br>
 ```pip install -r requirements.txt```
-
+- _RobotExperimental.py_ is supposed to be run in the ubuntu environment, modify the IP if necessary
 
 **IF SOMETHING DOESN'T WORK** <br>
 _Possible issues:_
@@ -27,3 +27,7 @@ _Possible issues:_
     - You also need to adapt numpy to a version compatible with this tensorflow and SAM2, using the following command:<br>
 ```pip install "numpy<2.0.0"```
 
+
+- Teachable machine model is not working because it is for older versions of keras
+  - Use the script _utils/FIX-Teachable-Machine.py_ 
+  - It will fix and substitute the old keras model with the new one

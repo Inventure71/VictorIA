@@ -1,8 +1,10 @@
+from concurrent.futures import ThreadPoolExecutor
+
+import cv2
+import numpy as np
+
 from utils.connect4_utils import find_possible_position_of_next_move
 from utils.useTeachableMachine import CircleRecognition
-from concurrent.futures import ThreadPoolExecutor
-import numpy as np
-import cv2
 
 """
 Possible issues:

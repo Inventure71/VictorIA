@@ -1,9 +1,9 @@
 import tkinter as tk
-from tkinter import filedialog, messagebox
+from tkinter import messagebox
 
+import cv2  # OpenCV for webcam functionality
 import numpy as np
 from PIL import Image, ImageTk
-import cv2  # OpenCV for webcam functionality
 
 
 class ImageClick:

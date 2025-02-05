@@ -1,13 +1,10 @@
 import os
 
-import tensorflow
-#import tensorflow as tf
-#from tensorflow.python.keras.layers import load_model
 import cv2  # Install opencv-python
 import numpy as np
-#from keras.src.utils.module_utils import tensorflow
-#from tensorflow.python.keras.models import load_model
-#import tensorflow.keras
+import tensorflow
+
+
 # remember tensorflow 2.12 needed
 
 

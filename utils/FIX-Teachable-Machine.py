@@ -1,3 +1,5 @@
+# Description: This script is used to fix the Teachable Machine model file to be compatible with the current version of the Keras library.
+
 
 import h5py
 f = h5py.File("../Models/teachable/keras_model.h5", mode="r+")
