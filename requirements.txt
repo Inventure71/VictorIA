@@ -1,0 +1,11 @@
+h5py==3.12.1
+matplotlib==3.10.0
+numpy==2.2.2
+opencv_python==4.11.0.86
+Pillow==11.1.0
+Requests==2.32.3
+SAM_2==1.0
+scipy==1.15.1
+sympy==1.13.1
+tensorflow==2.16.2
+torch==2.6.0
