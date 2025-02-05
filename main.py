@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 
 from ImagePointSelection import ImageClick
 from connect4 import predict
-from utils.sam_model_handler import SamModelHandler
+from utils.sam_model_handler import Sam2ModelHandler
 from utils.calibration_utils import show_mask, show_points
 from utils.calculate_intersection import calculate_intersection
 from utils.border_detection import BorderDetector
@@ -50,7 +50,9 @@ def main():
     """START OF MAIN"""
     # Load this at the start so it doesn't have to be loaded multiple times
     # Handle SAM model
-    sam_handler = SamModelHandler("Models/SAM Model Checkpoint.pth")
+    #config_path, checkpoint_path
+    #/Users/inventure71/PycharmProjects/sam2/sam2/configs/sam2.1
+    sam_handler = Sam2ModelHandler("configs/sam2.1/sam2.1_hiera_l.yaml","../sam2/checkpoints/sam2.1_hiera_large.pt")
 
     while True:
         # Initialize tkinter for image selection

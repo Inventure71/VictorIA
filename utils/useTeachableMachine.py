@@ -8,7 +8,6 @@ import numpy as np
 #from keras.src.utils.module_utils import tensorflow
 #from tensorflow.python.keras.models import load_model
 #import tensorflow.keras
-from teachable_machine import TeachableMachine
 # remember tensorflow 2.12 needed
 
 
