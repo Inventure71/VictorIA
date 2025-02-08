@@ -93,6 +93,8 @@ class ImageClick:
         """Capture the current frame from the webcam and proceed as with a loaded image."""
         if self.cap and self.is_capturing:
             ret, frame = self.cap.read()
+            frame = cv2.flip(frame, 1)
+
             if ret:
                 # Convert the frame to RGB and then to PIL Image
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)

@@ -14,7 +14,7 @@ from utils.camera_calibration import crop_view
 from utils.cv2_utils import display_mask_image_with_intersections
 from utils.detection_utils_v2 import process_each_cell_single_core, process_each_cell_multithreaded
 from utils.sam_model_handler import Sam2ModelHandler
-from utils.server_utils import send_move_request
+from utils.server_utils import send_move_request, send_move_request_async
 from utils.useTeachableMachine import CircleRecognition
 
 
@@ -146,6 +146,7 @@ def main():
 
     move, score = predict(matrix)
     print("Predicted move:", move)
+    send_move_request_async(move)
 
     while True:
         frame_count += 1
@@ -157,6 +158,7 @@ def main():
             frame_count = 0
 
         ret, frame = webcam.read()
+        frame = cv2.flip(frame, 1)
         warped_image = crop_view(frame, top_left, top_right, bottom_right, bottom_left)
         if MULTY_TREAD:
             matrix, overlay = process_each_cell_multithreaded("Images/rectified_image.jpg", 7, 6, circle_detector=cd,
@@ -176,7 +178,7 @@ def main():
         elif new_matrix.max() == 2:
             player_that_needs_to_play = 1
             move, best_score = predict(matrix)
-            send_move_request(move)
+            send_move_request_async(move)
             status_message = f"Player 2 has played | Predicted move: {move}"
             print(f"\rFPS: {fps:.2f} | Matrix:\n{matrix} | Status: {status_message}", end='', flush=True)
 
